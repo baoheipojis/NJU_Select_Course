@@ -1,6 +1,7 @@
-const courseNumber = "00372090";  // 课程号
+// 选择仙林校区的所有课程 
 const campus = "仙林校区";  // 校区名称
 const xpath = "/html/body/div[3]/div[2]/div[2]/div";  // 目标元素的XPath路径
+const buttonXPath = "/html/body/div[1]/article/div[1]/div[3]/button[2]";  // 按钮的XPath路径
 
 // 定义一个函数用于通过XPath选择元素
 function getElementByXPath(xpath) {
@@ -35,25 +36,21 @@ async function selectCourse() {
     // 标记是否找到匹配的课程
     let found = false;
 
-    // 遍历所有课程行，寻找匹配的课程号和校区
+    // 遍历所有课程行，寻找匹配的校区
     courseRows.forEach(row => {
-        // 获取课程号
-        const numberCell = row.querySelector("td.kch a.cv-jxb-detail");
-        const number = numberCell ? numberCell.getAttribute("data-number") : null;
-
         // 获取校区
         const campusCell = row.querySelector("td.xq");
         const campusText = campusCell ? campusCell.textContent.trim() : null;
 
         // 检查是否匹配
-        if (number === courseNumber && campusText === campus) {
+        if (campusText === campus) {
             // 找到“选择”按钮并点击
             const choiceButton = row.querySelector("td.cz a.cv-choice");
             if (choiceButton) {
-                console.log(`找到课程号为${courseNumber}且校区为${campus}的课程，正在点击“选择”按钮...`);
+                console.log(`找到校区为${campus}的课程，正在点击“选择”按钮...`);
                 choiceButton.click();
             } else {
-                console.log(`找到课程号为${courseNumber}且校区为${campus}的课程，但未找到“选择”按钮。`);
+                console.log(`找到校区为${campus}的课程，但未找到“选择”按钮。`);
             }
             found = true;  // 标记找到匹配的课程
         }
@@ -61,7 +58,7 @@ async function selectCourse() {
 
     // 如果没有找到匹配的课程
     if (!found) {
-        console.log(`未找到课程号为${courseNumber}且校区为${campus}的课程。`);
+        console.log(`未找到校区为${campus}的课程。`);
     }
 
     // 等待目标元素出现
@@ -74,5 +71,18 @@ async function selectCourse() {
     }
 }
 
-// 每10ms执行一次selectCourse函数
-setInterval(selectCourse, 100);
+// 每100ms执行一次selectCourse函数
+setInterval(selectCourse, 10000);
+
+// 每隔10秒点击指定按钮
+async function clickButtonPeriodically() {
+    try {
+        const button = await waitForElement(buttonXPath);
+        console.log("找到按钮，正在点击...");
+        button.click(); // 触发点击事件
+    } catch (error) {
+        console.error("按钮未找到或点击失败：", error);
+    }
+}
+
+setInterval(clickButtonPeriodically, 10000);  // 每10秒执行一次
